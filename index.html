@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8" />
+    <title>img-url-to-data</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #ecf0f3;
+        }
+
+        #converted {
+            word-break: break-all;
+        }
+
+        #input {
+            border: none;
+            outline: none;
+            background: none;
+            font-size: 18px;
+            color: #555;
+            padding: 20px 10px 20px 5px;
+            margin-bottom: 30px;
+            border-radius: 25px;
+            box-shadow: inset 8px 8px 8px #cbced1,
+                inset -8px -8px 8px #ffff;
+            width: 960px;
+            text-indent: 1em;
+        }
+
+        button {
+            outline: none;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            height: 60px;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: 700;
+            font-family: 'Lato', sans-serif;
+            color: #fff;
+            text-align: center;
+            background: #247fcf;
+            box-shadow: 3px 3px 8px #b1b1b1,
+                -3px -3px 8px #ffffff;
+            transition: 0.5s;
+            width: 480px;
+        }
+
+        button:hover {
+            background: #2f9fdb;
+        }
+
+        button:active {
+            background: #272cb3;
+        }
+    </style>
+</head>
+
+<body>
+    <input id="input"></input>
+    <button id="convertbtn">変換してコピーする</button>
+    <p>⬇︎</p>
+    <img id='view'></img>
+    <p id="converted"></p>
+    <p>source code is <a>here</a></p>
+    <script>
+        const btnel = document.getElementById("convertbtn")
+
+        function listener(e) {
+            // 本来のイベントをキャンセル
+            e.preventDefault();
+            e.clipboardData.setData("text", converted);
+            // 終わったら一応削除
+            document.removeEventListener("copy", listener);
+        }
+
+        // コピーのイベントが発生したときに、クリップボードに書き込むようにしておく
+        document.addEventListener("copy", listener);
+
+        function toBase64Url(url, callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function() {
+                var reader = new FileReader();
+                reader.onloadend = function() {
+                    callback(reader.result);
+                }
+                reader.readAsDataURL(xhr.response);
+            };
+            xhr.open('GET', url);
+            xhr.responseType = 'blob';
+            xhr.send();
+        }
+
+        // test: https://cdn.glitch.com/4c9ebeb9-8b9a-4adc-ad0a-238d9ae00bb5%2Fmdn_logo-only_color.svg?1535749917189
+        let inputString;
+        let converted;
+        document.getElementById('convertbtn').addEventListener("click", (event) => {
+            const el = document.getElementById("input")
+            inputString = el.value;
+            el.select();
+            // コピー
+            toBase64Url(inputString, function(base64Url) {
+                document.getElementById('converted').textContent = base64Url
+                document.getElementById('view').src = base64Url
+                converted = base64Url
+                document.execCommand("copy");
+            })
+            btnel.textContent = 'コピーしました'
+        })
+    </script>
+</body>
+
+</html>
